@@ -1,9 +1,11 @@
 import csv
 import re
 from datetime import datetime
+import doctest
 
 class Vacancy:
     """Класс для представления вакансии
+
 
     Attrubutes:
         name(str): Название вакансии
@@ -14,11 +16,24 @@ class Vacancy:
     def __init__(self, name, salary, area_name, published_at):
         """Инициализирует объект Vacancy
 
+
          Args:
             name(str): Название вакансии
             salary(class Salary): Объект класса Salary, описывающий зарплату
             area_name(str): Название региона
             published_at(datetime): Дата публикации вакансии
+
+
+        >>> type(Vacancy('Программист',Salary(10.0,26.1,'RUR'),'Свердловская область','2022-11-01T04:16:13-04:00')).__name__
+        'Vacancy'
+        >>> Vacancy('Программист',Salary(10.0,26.1,'RUR'),'Свердловская область','2022-11-01T04:16:13-04:00').name
+        'Программист'
+        >>> Vacancy('Программист',Salary(10.0,26.1,'RUR'),'Свердловская область','2022-11-01T04:16:13-04:00').salary.salary_to
+        26.1
+        >>> Vacancy('Программист',Salary(10.0,26.1,'RUR'),'Свердловская область','2022-11-01T04:16:13-04:00').published_at
+        '2022-11-01T04:16:13-04:00'
+        >>> Vacancy('Программист',Salary(10.0,26.1,'RUR'),'Свердловская область','2022-11-01T04:16:13-04:00').area_name
+        'Свердловская область'
         """
         self.name = name
         self.salary = salary
@@ -40,7 +55,16 @@ class Salary:
                 salary_from: Нижняя граница зарплаты
                 salary_to: Верхняя граница зарплаты
                 salary_currency: Валюта зарплаты
-            """
+
+        >>> type(Salary(10.0,26.1,'RUR')).__name__
+        'Salary'
+        >>> Salary(10.0,26.1,'RUR').salary_from
+        10.0
+        >>> Salary(10.0,26.1,'RUR').salary_to
+        26.1
+        >>> Salary(10.0,26.1,'RUR').salary_currency
+        'RUR'
+        """
         self.salary_from = salary_from
         self.salary_to = salary_to
         self.salary_currency = salary_currency
@@ -50,6 +74,13 @@ class Salary:
 
         Returns:
             float: Средняя зарплата в рублях
+
+        >>> Salary(10.0,26.0,'RUR').get_salary_in_rub()
+        18.0
+        >>> Salary(10.0,40.0,'USD').get_salary_in_rub()
+        1516.5
+        >>> Salary(10.0,40.0,'KZT').get_salary_in_rub()
+        3.25
         """
         return ((int(float(self.salary_from)) + int(float(self.salary_to))) / 2) * currency_to_rub[self.salary_currency]
 
@@ -155,6 +186,8 @@ class DataSet:
 
         parser_csv(file_name):Получает название файла, читает его методом csv_reader, формирует массив сущностей Vacancy
         :returns массив сущностей Vacancy
+
+
     """
     def __init__(self, file_name):
         """
@@ -174,6 +207,13 @@ class DataSet:
         """
         Очищает полученную строку от лишних символов
         :returns Очищенную строку
+
+        >>> DataSet.clear_str("<12>  Свердловская область<%> ")
+        'Свердловская область'
+        >>> DataSet.clear_str("<12>  Свердловская<не>область<%> ")
+        'Свердловскаяобласть'
+        >>> DataSet.clear_str("<12>  <Свердловская< >область<%> ")
+        'область'
         """
         return ' '.join(re.sub(r"<[^>]+>", '', str_value).split())
 
@@ -279,6 +319,11 @@ def reverse_dic(dic):
     Возвращает словарь, в котором ключ и значение поменены местами
     :param dic: Словарь
     :return:Словарь, в котором ключ и значение поменены местами
+
+    >>> reverse_dic({'a':1, 'b':2})
+    {1: 'a', 2: 'b'}
+    >>> reverse_dic({'Сон':'1', 'Ключ':'2','Бессымслица': 3})
+    {'1': 'Сон', '2': 'Ключ', 3: 'Бессымслица'}
     """
     return {value: key for key, value in dic.items()}
 
@@ -290,8 +335,10 @@ true_false_reverse = reverse_dic(true_false)
 
 
 def main():
-    InputConnect.exec()
+    a = InputConnect()
+    a.exec()
 
 
 if __name__ == '__main__':
+    doctest.testmod()
     main()
