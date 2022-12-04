@@ -3,30 +3,97 @@ import re
 from datetime import datetime
 
 class Vacancy:
+    """Класс для представления вакансии
+
+    Attrubutes:
+        name(str): Название вакансии
+        salary(class Salary): Объект класса Salary, описывающий зарплату
+        area_name(str): Название региона
+        published_at(datetime): Дата публикации вакансии
+    """
     def __init__(self, name, salary, area_name, published_at):
+        """Инициализирует объект Vacancy
+
+         Args:
+            name(str): Название вакансии
+            salary(class Salary): Объект класса Salary, описывающий зарплату
+            area_name(str): Название региона
+            published_at(datetime): Дата публикации вакансии
+        """
         self.name = name
         self.salary = salary
         self.area_name = area_name
         self.published_at = published_at
 
 class Salary:
+    """Класс для представления зарплаты
+
+    Attrubutes:
+        salary_from: Нижняя граница зарплаты
+        salary_to: Верхняя граница зарплаты
+        salary_currency: Валюта зарплаты
+    """
     def __init__(self, salary_from, salary_to, salary_currency):
+        """Инициализирует объект Salary
+
+            Args:
+                salary_from: Нижняя граница зарплаты
+                salary_to: Верхняя граница зарплаты
+                salary_currency: Валюта зарплаты
+            """
         self.salary_from = salary_from
         self.salary_to = salary_to
         self.salary_currency = salary_currency
 
     def get_salary_in_rub(self):
+        """Вычисляет среднюю зарплату из вилки и переводит в рубли, при помощи словоря currency_to_rub.
+
+        Returns:
+            float: Средняя зарплата в рублях
+        """
         return ((int(float(self.salary_from)) + int(float(self.salary_to))) / 2) * currency_to_rub[self.salary_currency]
 
-class InputConect:
-    def make(self):
+class InputConnect:
+    """Класс для ввода и вывода данных
+
+    Methods:
+        exec(self): Получает название файла и профессии, создаёт объект класса DataSet и запускает метод
+        printing_data_for_table
+
+        printing_data_for_table(dataset, vac_name): Получает данные из файла и название профессии и выводит:
+        1)Динамику уровня зарплат по годам
+        2)Динамику количества вакансий по годам
+        3)Динамику уровня зарплат по годам для выбранной профессии
+        4)Динамику количества вакансий по годам для выбранной профессии
+        5)Уровень зарплат по городам (в порядке убывания)
+        6)Долю вакансий по городам (в порядке убывания)
+        для данной профессии
+        """
+    def exec(self):
+        """
+        Получает название файла и профессии, создаёт объект класса DataSet и запускает метод
+        printing_data_for_table
+        """
         file_name = input('Введите название файла: ')
         vac_name = input('Введите название профессии: ')
         data_set = DataSet(file_name)
-        InputConect.printing_data_for_table(data_set, vac_name)
+        InputConnect.printing_data_for_table(data_set, vac_name)
 
     @staticmethod
     def printing_data_for_table(dataset, vac_name):
+        """
+        Формирует словари с аналитичекой информацией по годам по данной профессии
+        :param dataset: Объект класса DataSet
+        :param vac_name: (str)Название профессии
+        :return: Выводит:
+                1)Динамику уровня зарплат по годам
+                2)Динамику количества вакансий по годам
+                3)Динамику уровня зарплат по годам для выбранной профессии
+                4)Динамику количества вакансий по годам для выбранной профессии
+                5)Уровень зарплат по городам (в порядке убывания)
+                6)Долю вакансий по городам (в порядке убывания)
+                для данной профессии
+        """
         dic_vacancies = dataset.vacancies_objects
         years = set()
         for vacancy in dic_vacancies:
@@ -39,23 +106,23 @@ class InputConect:
         years_salary_vac_dic = {year: [] for year in years}
         years_count_vac_dic = {year: 0 for year in years}
 
-        for vacancie in dic_vacancies:
-            y = int(datetime.strptime(vacancie.published_at, '%Y-%m-%dT%H:%M:%S%z').strftime("%Y"))
-            years_salary_dic[y].append(vacancie.salary.get_salary_in_rub())
+        for vacancy in dic_vacancies:
+            y = int(datetime.strptime(vacancy.published_at, '%Y-%m-%dT%H:%M:%S%z').strftime("%Y"))
+            years_salary_dic[y].append(vacancy.salary.get_salary_in_rub())
             years_count_dic[y] += 1
-            if vac_name in vacancie.name:
-                years_salary_vac_dic[y].append(vacancie.salary.get_salary_in_rub())
+            if vac_name in vacancy.name:
+                years_salary_vac_dic[y].append(vacancy.salary.get_salary_in_rub())
                 years_count_vac_dic[y] += 1
 
         years_salary_dic = {key: int(sum(value) / len(value)) if len(value) != 0 else 0 for key, value in years_salary_dic.items()}
         years_salary_vac_dic = {key: int(sum(value) / len(value)) if len(value) != 0 else 0 for key, value in years_salary_vac_dic.items()}
 
         area_dic = {}
-        for vacancie in dic_vacancies:
-            if vacancie.area_name in area_dic:
-                area_dic[vacancie.area_name].append(vacancie.salary.get_salary_in_rub())
+        for vacancy in dic_vacancies:
+            if vacancy.area_name in area_dic:
+                area_dic[vacancy.area_name].append(vacancy.salary.get_salary_in_rub())
             else:
-                area_dic[vacancie.area_name] = [vacancie.salary.get_salary_in_rub()]
+                area_dic[vacancy.area_name] = [vacancy.salary.get_salary_in_rub()]
 
         area_list = area_dic.items()
         area_list = [x for x in area_list if len(x[1]) >= int(len(dic_vacancies) / 100)]
@@ -72,16 +139,52 @@ class InputConect:
         print("Доля вакансий по городам (в порядке убывания): " + str(area_count_dic))
 
 class DataSet:
+    """ Класс для представления данных из csv документа
+
+    Attrubutes:
+        file_name(str): название файла
+        vacancies_objects(args): массив сущностей Vacancy
+
+    Methods(Все методы статические):
+        clear_str(str_value): Очищает полученную строку от лишних символов
+        :returns Очищенную строку
+
+        csv_reader(file_name): Получает название файла, после чего считывает его и возвращает название столбцов
+        и данные csv файла. В случае, если файл пустой выводит строку "Пустой файл"
+        :returns название столбцов, массив данных из csv файла
+
+        parser_csv(file_name):Получает название файла, читает его методом csv_reader, формирует массив сущностей Vacancy
+        :returns массив сущностей Vacancy
+    """
     def __init__(self, file_name):
+        """
+        Инициализирует объект DataSet
+
+        :param file_name(str): название файла
+
+        Args:
+            file_name(str): название файла
+            vacancies_objects: массив сущностей Vacancy
+        """
         self.file_name = file_name
         self.vacancies_objects = DataSet.parser_csv(file_name)
 
     @staticmethod
     def clear_str(str_value):
+        """
+        Очищает полученную строку от лишних символов
+        :returns Очищенную строку
+        """
         return ' '.join(re.sub(r"<[^>]+>", '', str_value).split())
 
     @staticmethod
     def csv_reader(file_name):
+        """
+        Получает название файла, после чего считывает его и возвращает название столбцов
+        и данные csv файла. В случае, если файл пустой выводит строку "Пустой файл"
+
+        :returns Название столбцов, массив данных из csv файла
+        """
         file = open(file_name, encoding='utf_8_sig')
         reader = [row for row in csv.reader(file)]
         try:
@@ -93,6 +196,12 @@ class DataSet:
 
     @staticmethod
     def parser_csv(file_name):
+        """
+        Получает название файла, читает его методом csv_reader, формирует массив сущностей Vacancy
+
+        :param file_name: Название файла
+        :returns Массив сущностей Vacancy
+        """
         naming, reader = DataSet.csv_reader(file_name)
         dic_vacancies = []
         filtered_vacancies = [x for x in reader if len(x) == len(naming) and '' not in x]
@@ -166,6 +275,11 @@ true_false = {
 
 
 def reverse_dic(dic):
+    """
+    Возвращает словарь, в котором ключ и значение поменены местами
+    :param dic: Словарь
+    :return:Словарь, в котором ключ и значение поменены местами
+    """
     return {value: key for key, value in dic.items()}
 
 
@@ -176,8 +290,7 @@ true_false_reverse = reverse_dic(true_false)
 
 
 def main():
-    a = InputConect()
-    a.make()
+    InputConnect.exec()
 
 
 if __name__ == '__main__':
